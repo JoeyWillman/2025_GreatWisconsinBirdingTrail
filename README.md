@@ -1,6 +1,8 @@
 # Team Name
 
 ### Team Members
+Joseph Willman - jgwillman@wisc.edu
+Ethan Westerkamp - ewesterkamp@wisc.edu
 
 ### Final Proposal
 1. Persona/Scenario
