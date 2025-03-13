@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Great Wisconsin Birding Trail</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/styles/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Coiny&family=Radio+Canada&family=Yusei+Magic&display=swap" rel="stylesheet">
+         
+
+    <style>
+
+.coiny-regular {
+                font-family: "Radio Canada", sans-serif;
+                font-weight: 400;
+                font-style: normal;
+              }
+          
+              body {
+                font-family: "Radio Canada", sans-serif;
+              }
+        #tour-map-container {
+            position: relative;
+            height: 600px;
+            border: 2px solid #1B6CA7;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #tour-map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-btn {
+            position: absolute;
+            z-index: 1000;
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #fullscreen-btn {
+            top: 10px;
+            right: 10px;
+        }
+
+        #locate-btn {
+            bottom: 10px;
+            right: 10px;
+        }
+
+        /* Recent Observations Tool */
+        #recent-observations-container {
+            height: 675px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            margin-right: 15px;
+        }
+
+        .recent-observations-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .observation-item {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .about-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .about-details > div {
+            flex: 1 1 calc(33% - 10px);
+            margin: 5px;
+            font-size: 14px;
+        }
+        /* ... existing styles ... */
+
+    .about-details {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .about-details > div {
+        flex: 1 1 calc(33% - 10px);
+        margin: 5px;
+        font-size: 22px; /* Increased font size */
+    }
+
+    #site-description {
+        font-size: 16px; /* Increase site description size */
+    }
+
+    #birdability-details {
+    text-align: left; /* Ensure text is left-aligned */
+    line-height: 1.6; /* Add some spacing between lines */
+    font-size: 16px; /* Set an appropriate font size */
+}
+
+.accessibility-item {
+    margin-bottom: 10px; /* Add spacing between each accessibility item */
+}
+
+    </style>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/img/logo.png" alt="Logo" height="100">
+                Great Wisconsin Birding Trail
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="map.html">Map</a></li>
+                    <li class="nav-item"><a class="nav-link" href="submit.html">Submit a Site</a></li>
+                    <li class="nav-item"><a class="nav-link" href="resources.html">Resources</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Left Column for Recent Observations -->
+            <div class="col-md-4">
+                <div id="recent-observations-container">
+                    <div class="recent-observations-title">Recent Observations</div>
+                    <select id="observation-days" class="form-select mb-3">
+                        <option value="1">Past 1 Day</option>
+                        <option value="3" selected>Past 3 Days</option>
+                        <option value="7">Past 7 Days</option>
+                        <option value="14">Past 14 Days</option>
+                        <option value="30">Past 30 Days</option>
+                    </select>
+                    <div id="observations-list">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Right Column for Map -->
+            <div class="col-md-8">
+                <div class="card p-3">
+                    <h2 id="site-title" class="text-center">Loading Tour...</h2>
+                    <div id="tour-map-container">
+                        <div id="tour-map"></div>
+                        <button id="locate-btn" class="map-btn">Locate Me</button>
+                        <button id="fullscreen-btn" class="map-btn">Fullscreen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="card p-3 mt-3">
+            <h3>About <span id="site-name"></span></h3>
+            <div class="about-details" id="about-details"></div>
+            <p id="site-description">Loading site details...</p>
+        </div>
+
+        <!-- Accessibility Section -->
+        <div class="card p-3 mt-3">
+            <h3>Accessibility Information</h3>
+            <div id="birdability-details">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+<footer class="footer" style="background-color: #1A4D7A; padding: 20px; color: white; text-align: center;">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <p style="margin: 0;">Copyright © 2024 Wisconsin Accessible Birding Atlas. All rights reserved.</p>
+          <img src="./assets/img/logo.png" alt="logo" height="75px" style="margin-top: 10px;">
+        </div>
+      </div>
+    </div>
+  </footer>
+
+    <!-- Tour JavaScript -->
+    <script src="assets/scripts/tour.js"></script>
+</body>
+</html>
