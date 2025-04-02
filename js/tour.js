@@ -15,8 +15,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const map = L.map("map").setView([44.5, -89.5], 7);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors"
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19
     }).addTo(map);
 
     fetch("assets/data/sites.csv")
