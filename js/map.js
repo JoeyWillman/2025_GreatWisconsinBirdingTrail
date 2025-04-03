@@ -64,34 +64,79 @@ document.addEventListener("DOMContentLoaded", function () {
         maxZoom: 19
     }).addTo(map);
 
+    let countyDescriptions = {};
+
+    fetch("assets/County_Descriptions.csv")
+    .then(res => res.text())
+    .then(csv => {
+        const parsed = Papa.parse(csv, { header: true }).data;
+
+        console.log("🔍 Parsed county description rows:", parsed);
+
+        parsed.forEach(row => {
+            if (row.county && row.description) {
+                countyDescriptions[row.county.trim().toLowerCase()] = row.description.trim();
+            }
+        });
+
+        console.log("✅ Loaded county descriptions:", countyDescriptions);
+    })
+    .catch(err => console.error("❌ Error loading county descriptions:", err));
+
+    
     fetch("assets/County_Boundaries.geojson")
-        .then(res => res.json())
-        .then(data => {
-            const selected = data.features.filter(f =>
-                regionData.counties.includes(f.properties.COUNTY_NAME)
-            );
+    .then(res => res.json())
+    .then(data => {
+        const selected = data.features.filter(f =>
+            regionData.counties.includes(f.properties.COUNTY_NAME)
+        );
 
-            const countyLayer = L.geoJSON(selected, {
-                style: {
-                    color: "#000",
-                    weight: 1.5,
-                    fillOpacity: 0,
-                    dashArray: "4"
-                }
-            }).addTo(map);
-
-            map.fitBounds(countyLayer.getBounds());
-
-            // Add county labels
-            selected.forEach(feature => {
-                const bounds = L.geoJSON(feature).getBounds();
-                const center = bounds.getCenter();
-                const label = L.divIcon({
-                    className: 'county-label',
-                    html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
+        // Add interaction and styling
+        const countyLayer = L.geoJSON(selected, {
+            style: {
+                color: "#000",
+                weight: 1.5,
+                fillOpacity: 0,
+                dashArray: "4"
+            },
+            onEachFeature: function (feature, layer) {
+                layer.on({
+                    mouseover: function (e) {
+                        e.target.setStyle({
+                            fillOpacity: 0.1
+                        });
+                    },
+                    mouseout: function (e) {
+                        e.target.setStyle({
+                            fillOpacity: 0
+                        });
+                    },
+                    click: function (e) {
+                        const countyName = feature.properties.COUNTY_NAME.trim();
+                        const key = countyName.toLowerCase();
+                        const description = countyDescriptions[key] || "No description available for this county.";
+                    
+                        document.getElementById("county-title").innerText = countyName + " County";
+                        document.getElementById("county-description").innerHTML = description;
+                        document.getElementById("sidebar").classList.add("open");
+                    }
+                    
                 });
-                L.marker(center, { icon: label, interactive: false }).addTo(map);
+            }
+        }).addTo(map);
+
+        map.fitBounds(countyLayer.getBounds());
+
+        // Label code remains unchanged...
+        selected.forEach(feature => {
+            const bounds = L.geoJSON(feature).getBounds();
+            const center = bounds.getCenter();
+            const label = L.divIcon({
+                className: 'county-label',
+                html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
             });
+            L.marker(center, { icon: label, interactive: false }).addTo(map);
+        });
 
             // Mask everything outside selected counties
 const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
@@ -118,6 +163,21 @@ const mask = L.polygon(
 ).addTo(map);
         })
         .catch(err => console.error("❌ Error loading county boundaries:", err));
+
+        // --- Add Wisconsin State Boundary ---
+fetch("assets/WI_Boundary.geojson")
+.then(res => res.json())
+.then(wiData => {
+    L.geoJSON(wiData, {
+        style: {
+            color: "#333",     // Dark gray border
+            weight: 2.5,
+            fillOpacity: 0
+        }
+    }).addTo(map);
+    console.log("✅ Wisconsin boundary added.");
+})
+.catch(err => console.error("❌ Error loading Wisconsin boundary:", err));
 
     const dataPath = `assets/${regionData.file}`;
     console.log("📂 Fetching data from:", dataPath);
@@ -181,3 +241,14 @@ const mask = L.polygon(
         })
         .catch((error) => console.error("❌ Error loading site data:", error));
 });
+
+function openSidebar(title, description) {
+    const sidebar = document.getElementById("sidebar");
+    document.getElementById("county-title").innerText = title;
+    document.getElementById("county-description").innerHTML = description;
+    sidebar.classList.add("open");
+}
+
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+}
