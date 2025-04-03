@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Initializing map...");
     const map = L.map(mapElement);
 
-    // Muted base layer (light Carto)
+    // Base layer
     L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: "abcd",
@@ -83,40 +83,39 @@ document.addEventListener("DOMContentLoaded", function () {
             map.fitBounds(countyLayer.getBounds());
 
             // Add county labels
-selected.forEach(feature => {
-    const bounds = L.geoJSON(feature).getBounds();
-    const center = bounds.getCenter();
-    const label = L.divIcon({
-        className: 'county-label',
-        html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
-    });
-    L.marker(center, { icon: label, interactive: false }).addTo(map);
+            selected.forEach(feature => {
+                const bounds = L.geoJSON(feature).getBounds();
+                const center = bounds.getCenter();
+                const label = L.divIcon({
+                    className: 'county-label',
+                    html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
+                });
+                L.marker(center, { icon: label, interactive: false }).addTo(map);
+            });
+
+            // Mask everything outside selected counties
+const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
+
+const holes = selected.flatMap(feature => {
+    if (feature.geometry.type === "Polygon") {
+        return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
+    } else if (feature.geometry.type === "MultiPolygon") {
+        return feature.geometry.coordinates.map(polygon =>
+            polygon[0].map(c => [c[1], c[0]])
+        );
+    } else {
+        return [];
+    }
 });
 
-            // --- Masking everything OUTSIDE counties ---
-            // Outer rectangle covering whole map
-            const outer = [
-                [-90, -360], [-90, 360], [90, 360], [90, -360]
-            ];
-
-            // Extract holes (county polygons)
-            const holes = selected.map(feature => {
-                if (feature.geometry.type === "Polygon") {
-                    return feature.geometry.coordinates[0].map(c => [c[1], c[0]]);
-                } else if (feature.geometry.type === "MultiPolygon") {
-                    return feature.geometry.coordinates[0][0].map(c => [c[1], c[0]]);
-                }
-            }).filter(Boolean);
-
-            // Build combined mask with holes
-            const mask = L.polygon(
-                [outer, ...holes],
-                {
-                    fillColor: "#000",
-                    fillOpacity: 0.4,
-                    stroke: false
-                }
-            ).addTo(map);
+const mask = L.polygon(
+    [outer, ...holes],
+    {
+        fillColor: "#000",
+        fillOpacity: 0.4,
+        stroke: false
+    }
+).addTo(map);
         })
         .catch(err => console.error("❌ Error loading county boundaries:", err));
 
@@ -137,21 +136,21 @@ selected.forEach(feature => {
             parsedData.forEach(site => {
                 const lat = parseFloat(site.lat);
                 const lon = parseFloat(site.lon);
-            
+
                 if (isNaN(lat) || isNaN(lon)) {
-                    console.warn(`⚠️ Skipped invalid coordinates for site: ${site.Name || site.name} (lat: ${site.lat}, lon: ${site.lon})`);
+                    console.warn(`⚠️ Skipped invalid coordinates for site: ${site.Name || site.name}`);
                     return;
                 }
-            
+
                 if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-                    console.warn(`⚠️ Skipped out-of-range coordinates for site: ${site.Name || site.name} (lat: ${lat}, lon: ${lon})`);
+                    console.warn(`⚠️ Skipped out-of-range coordinates for site: ${site.Name || site.name}`);
                     return;
                 }
-            
+
                 const name = site.Name || site.name || "";
                 const numberMatch = name.match(/^(\d+)/);
                 const siteNumber = numberMatch ? numberMatch[1] : "?";
-            
+
                 const customIcon = L.divIcon({
                     className: "custom-number-icon",
                     html: `
@@ -163,18 +162,16 @@ selected.forEach(feature => {
                     iconAnchor: [14, 14],
                     popupAnchor: [0, -14]
                 });
-                
-            
+
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
                 marker.bindPopup(`
                     <b>${name}</b><br>
                     ${site.description || ""}<br><br>
                     <a href="tour.html?site_id=${encodeURIComponent(name)}">View Site</a>
                 `);
-            
+
                 addedSites++;
             });
-            
 
             if (addedSites === 0) {
                 console.warn("⚠️ No valid coordinates found in this file.");
