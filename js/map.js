@@ -155,23 +155,7 @@ selected.forEach(feature => {
                 const customIcon = L.divIcon({
                     className: "custom-number-icon",
                     html: `
-                        <div style="
-                            width: 28px;
-                            height: 28px;
-                            border-radius: 50%;
-                            background-color: #6e1a3b;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-weight: bold;
-                            font-size: 14px;
-                            color: white;
-                            text-shadow:
-                                -1px -1px 0 black,
-                                 1px -1px 0 black,
-                                -1px  1px 0 black,
-                                 1px  1px 0 black;
-                        ">
+                        <div class="custom-number-marker">
                             ${siteNumber}
                         </div>
                     `,
@@ -179,6 +163,7 @@ selected.forEach(feature => {
                     iconAnchor: [14, 14],
                     popupAnchor: [0, -14]
                 });
+                
             
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
                 marker.bindPopup(`
