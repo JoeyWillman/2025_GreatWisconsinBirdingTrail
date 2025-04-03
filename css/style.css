@@ -516,3 +516,9 @@ box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   fill-opacity: 0.2 !important;
   cursor: pointer;
 }
+
+#county-description {
+  text-align: left;
+  padding: 10px;
+  white-space: pre-line; /* Ensures line breaks in the description are respected */
+}

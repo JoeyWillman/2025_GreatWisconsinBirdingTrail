@@ -55,14 +55,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     console.log("✅ Initializing map...");
-    const map = L.map(mapElement);
 
-    // Base layer
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: "abcd",
-        maxZoom: 19
-    }).addTo(map);
+const map = L.map(mapElement, {
+    maxBounds: [
+        [41.5, -93.0], // Southwest corner (expanded for padding)
+        [47.5, -86.0]  // Northeast corner (expanded for padding)
+    ],
+    maxBoundsViscosity: 1.0,  // Ensure the boundary is enforced strongly
+    zoomControl: true,
+    scrollWheelZoom: true,  // Enable zooming with mouse wheel
+    minZoom: 6,  // Minimum zoom level (change based on your preferred zoom range)
+    maxZoom: 15,  // Maximum zoom level (change based on your preferred zoom range)
+    layers: [
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: "abcd",
+            maxZoom: 19
+        })
+    ],
+});
+
+    
+    // Ensure the map doesn't scroll out of bounds
+    map.setMaxBounds([
+        [42.0, -92.0], // Southwest corner of Wisconsin
+        [47.0, -87.0]  // Northeast corner of Wisconsin
+    ]);
+    
 
     let countyDescriptions = {};
 
@@ -83,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .catch(err => console.error("❌ Error loading county descriptions:", err));
 
-    
     fetch("assets/County_Boundaries.geojson")
     .then(res => res.json())
     .then(data => {
@@ -91,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             regionData.counties.includes(f.properties.COUNTY_NAME)
         );
 
-        // Add interaction and styling
+        // Add interaction and styling for county boundaries
         const countyLayer = L.geoJSON(selected, {
             style: {
                 color: "#000",
@@ -120,14 +138,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.getElementById("county-description").innerHTML = description;
                         document.getElementById("sidebar").classList.add("open");
                     }
-                    
                 });
             }
         }).addTo(map);
 
         map.fitBounds(countyLayer.getBounds());
 
-        // Label code remains unchanged...
+        // Label code for county boundaries
         selected.forEach(feature => {
             const bounds = L.geoJSON(feature).getBounds();
             const center = bounds.getCenter();
@@ -138,46 +155,46 @@ document.addEventListener("DOMContentLoaded", function () {
             L.marker(center, { icon: label, interactive: false }).addTo(map);
         });
 
-            // Mask everything outside selected counties
-const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
+        // Mask everything outside selected counties
+        const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
 
-const holes = selected.flatMap(feature => {
-    if (feature.geometry.type === "Polygon") {
-        return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
-    } else if (feature.geometry.type === "MultiPolygon") {
-        return feature.geometry.coordinates.map(polygon =>
-            polygon[0].map(c => [c[1], c[0]])
-        );
-    } else {
-        return [];
-    }
-});
+        const holes = selected.flatMap(feature => {
+            if (feature.geometry.type === "Polygon") {
+                return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
+            } else if (feature.geometry.type === "MultiPolygon") {
+                return feature.geometry.coordinates.map(polygon =>
+                    polygon[0].map(c => [c[1], c[0]])
+                );
+            } else {
+                return [];
+            }
+        });
 
-const mask = L.polygon(
-    [outer, ...holes],
-    {
-        fillColor: "#000",
-        fillOpacity: 0.4,
-        stroke: false
-    }
-).addTo(map);
-        })
-        .catch(err => console.error("❌ Error loading county boundaries:", err));
+        const mask = L.polygon(
+            [outer, ...holes],
+            {
+                fillColor: "#000",
+                fillOpacity: 0.4,
+                stroke: false
+            }
+        ).addTo(map);
+    })
+    .catch(err => console.error("❌ Error loading county boundaries:", err));
 
-        // --- Add Wisconsin State Boundary ---
-fetch("assets/WI_Boundary.geojson")
-.then(res => res.json())
-.then(wiData => {
-    L.geoJSON(wiData, {
-        style: {
-            color: "#333",     // Dark gray border
-            weight: 2.5,
-            fillOpacity: 0
-        }
-    }).addTo(map);
-    console.log("✅ Wisconsin boundary added.");
-})
-.catch(err => console.error("❌ Error loading Wisconsin boundary:", err));
+    // Add Wisconsin State Boundary
+    fetch("assets/WI_Boundary.geojson")
+    .then(res => res.json())
+    .then(wiData => {
+        L.geoJSON(wiData, {
+            style: {
+                color: "#333",     // Dark gray border
+                weight: 2.5,
+                fillOpacity: 0
+            }
+        }).addTo(map);
+        console.log("✅ Wisconsin boundary added.");
+    })
+    .catch(err => console.error("❌ Error loading Wisconsin boundary:", err));
 
     const dataPath = `assets/${regionData.file}`;
     console.log("📂 Fetching data from:", dataPath);
