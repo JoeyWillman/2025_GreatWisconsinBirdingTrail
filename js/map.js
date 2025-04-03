@@ -56,32 +56,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("✅ Initializing map...");
 
-const map = L.map(mapElement, {
-    maxBounds: [
-        [41.5, -93.0], // Southwest corner (expanded for padding)
-        [47.5, -86.0]  // Northeast corner (expanded for padding)
-    ],
-    maxBoundsViscosity: 1.0,  // Ensure the boundary is enforced strongly
-    zoomControl: true,
-    scrollWheelZoom: true,  // Enable zooming with mouse wheel
-    minZoom: 6,  // Minimum zoom level (change based on your preferred zoom range)
-    maxZoom: 15,  // Maximum zoom level (change based on your preferred zoom range)
-    layers: [
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-            subdomains: "abcd",
-            maxZoom: 19
-        })
-    ],
-});
+    const map = L.map(mapElement, {
+        maxBounds: [
+            [41.5, -93.0], // Southwest corner (expanded for padding)
+            [47.5, -86.0]  // Northeast corner (expanded for padding)
+        ],
+        maxBoundsViscosity: 1.0,  // Ensure the boundary is enforced strongly
+        zoomControl: true,
+        scrollWheelZoom: true,  // Enable zooming with mouse wheel
+        minZoom: 6,  // Minimum zoom level (change based on your preferred zoom range)
+        maxZoom: 15,  // Maximum zoom level (change based on your preferred zoom range)
+        layers: [
+            L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: "abcd",
+                maxZoom: 19
+            })
+        ],
+    });
 
-    
     // Ensure the map doesn't scroll out of bounds
     map.setMaxBounds([
         [42.0, -92.0], // Southwest corner of Wisconsin
         [47.0, -87.0]  // Northeast corner of Wisconsin
     ]);
-    
 
     let countyDescriptions = {};
 
@@ -89,7 +87,6 @@ const map = L.map(mapElement, {
     .then(res => res.text())
     .then(csv => {
         const parsed = Papa.parse(csv, { header: true }).data;
-
         console.log("🔍 Parsed county description rows:", parsed);
 
         parsed.forEach(row => {
@@ -155,7 +152,7 @@ const map = L.map(mapElement, {
             L.marker(center, { icon: label, interactive: false }).addTo(map);
         });
 
-        // Mask everything outside selected counties
+        // Mask everything outside selected counties (Ensure hover effect is only for counties)
         const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
 
         const holes = selected.flatMap(feature => {
@@ -163,8 +160,7 @@ const map = L.map(mapElement, {
                 return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
             } else if (feature.geometry.type === "MultiPolygon") {
                 return feature.geometry.coordinates.map(polygon =>
-                    polygon[0].map(c => [c[1], c[0]])
-                );
+                    polygon[0].map(c => [c[1], c[0]]))
             } else {
                 return [];
             }
@@ -178,6 +174,9 @@ const map = L.map(mapElement, {
                 stroke: false
             }
         ).addTo(map);
+
+        // Remove hover effect on the mask layer to prevent interactions
+        mask.getElement().style.pointerEvents = 'none';
     })
     .catch(err => console.error("❌ Error loading county boundaries:", err));
 
