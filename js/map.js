@@ -100,44 +100,57 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(err => console.error("❌ Error loading county descriptions:", err));
 
     fetch("assets/County_Boundaries.geojson")
-    .then(res => res.json())
-    .then(data => {
-        const selected = data.features.filter(f =>
-            regionData.counties.includes(f.properties.COUNTY_NAME)
-        );
+.then(res => res.json())
+.then(data => {
+    const selected = data.features.filter(f =>
+        regionData.counties.includes(f.properties.COUNTY_NAME)
+    );
 
-        // Add interaction and styling for county boundaries
-        const countyLayer = L.geoJSON(selected, {
-            style: {
-                color: "#000",
-                weight: 1.5,
-                fillOpacity: 0,
-                dashArray: "4"
-            },
-            onEachFeature: function (feature, layer) {
-                layer.on({
-                    mouseover: function (e) {
-                        e.target.setStyle({
-                            fillOpacity: 0.1
-                        });
-                    },
-                    mouseout: function (e) {
-                        e.target.setStyle({
-                            fillOpacity: 0
-                        });
-                    },
-                    click: function (e) {
-                        const countyName = feature.properties.COUNTY_NAME.trim();
-                        const key = countyName.toLowerCase();
-                        const description = countyDescriptions[key] || "No description available for this county.";
-                    
-                        document.getElementById("county-title").innerText = countyName + " County";
-                        document.getElementById("county-description").innerHTML = description;
-                        document.getElementById("sidebar").classList.add("open");
-                    }
-                });
-            }
-        }).addTo(map);
+    const unselected = data.features.filter(f =>
+        !regionData.counties.includes(f.properties.COUNTY_NAME)
+    );
+
+    // ✅ Add selected counties with interactivity
+    const countyLayer = L.geoJSON(selected, {
+        style: {
+            color: "#000",
+            weight: 1.5,
+            fillOpacity: 0,
+            dashArray: "4"
+        },
+        onEachFeature: function (feature, layer) {
+            layer.on({
+                mouseover: function (e) {
+                    e.target.setStyle({
+                        fillOpacity: 0.1
+                    });
+                },
+                mouseout: function (e) {
+                    e.target.setStyle({
+                        fillOpacity: 0
+                    });
+                },
+                click: function (e) {
+                    const countyName = feature.properties.COUNTY_NAME.trim();
+                    const key = countyName.toLowerCase();
+                    const description = countyDescriptions[key] || "No description available for this county.";
+
+                    document.getElementById("county-title").innerText = countyName + " County";
+                    document.getElementById("county-description").innerHTML = description;
+                    document.getElementById("sidebar").classList.add("open");
+                }
+            });
+        }
+    }).addTo(map);
+
+    // 🧼 Add invisible non-interactive unselected counties to prevent ghost interactivity
+    L.geoJSON(unselected, {
+        style: {
+            fillOpacity: 0,
+            opacity: 0
+        },
+        interactive: false
+    }).addTo(map);
 
         map.fitBounds(countyLayer.getBounds());
 
@@ -171,12 +184,12 @@ document.addEventListener("DOMContentLoaded", function () {
             {
                 fillColor: "#000",
                 fillOpacity: 0.4,
-                stroke: false
+                stroke: false,
+                interactive: false  // ✅ Disable all mouse interaction
             }
         ).addTo(map);
 
-        // Remove hover effect on the mask layer to prevent interactions
-        mask.getElement().style.pointerEvents = 'none';
+
     })
     .catch(err => console.error("❌ Error loading county boundaries:", err));
 
