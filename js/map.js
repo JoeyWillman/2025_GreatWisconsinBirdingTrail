@@ -57,220 +57,147 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Initializing map...");
 
     const map = L.map(mapElement, {
-        maxBounds: [
-            [41.5, -93.0], // Southwest corner (expanded for padding)
-            [47.5, -86.0]  // Northeast corner (expanded for padding)
-        ],
-        maxBoundsViscosity: 1.0,  // Ensure the boundary is enforced strongly
+        maxBounds: [[40.5, -94.0], [48.5, -85.0]],
+        maxBoundsViscosity: 1.0,
         zoomControl: true,
-        scrollWheelZoom: true,  // Enable zooming with mouse wheel
-        minZoom: 6,  // Minimum zoom level (change based on your preferred zoom range)
-        maxZoom: 15,  // Maximum zoom level (change based on your preferred zoom range)
+        scrollWheelZoom: true,
+        minZoom: 6,
+        maxZoom: 15,
         layers: [
             L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
                 attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
                 subdomains: "abcd",
                 maxZoom: 19
             })
-        ],
+        ]
     });
 
-    // Ensure the map doesn't scroll out of bounds
-    map.setMaxBounds([
-        [42.0, -92.0], // Southwest corner of Wisconsin
-        [47.0, -87.0]  // Northeast corner of Wisconsin
-    ]);
+    map.setMaxBounds([[41.0, -93.5], [48.0, -86.5]]);
 
     let countyDescriptions = {};
 
     fetch("assets/County_Descriptions.csv")
-    .then(res => res.text())
-    .then(csv => {
-        const parsed = Papa.parse(csv, { header: true }).data;
-        console.log("🔍 Parsed county description rows:", parsed);
-
-        parsed.forEach(row => {
-            if (row.county && row.description) {
-                countyDescriptions[row.county.trim().toLowerCase()] = row.description.trim();
-            }
-        });
-
-        console.log("✅ Loaded county descriptions:", countyDescriptions);
-    })
-    .catch(err => console.error("❌ Error loading county descriptions:", err));
-
-    fetch("assets/County_Boundaries.geojson")
-.then(res => res.json())
-.then(data => {
-    const selected = data.features.filter(f =>
-        regionData.counties.includes(f.properties.COUNTY_NAME)
-    );
-
-    const unselected = data.features.filter(f =>
-        !regionData.counties.includes(f.properties.COUNTY_NAME)
-    );
-
-    // ✅ Add selected counties with interactivity
-    const countyLayer = L.geoJSON(selected, {
-        style: {
-            color: "#000",
-            weight: 1.5,
-            fillOpacity: 0,
-            dashArray: "4"
-        },
-        onEachFeature: function (feature, layer) {
-            layer.on({
-                mouseover: function (e) {
-                    e.target.setStyle({
-                        fillOpacity: 0.1
-                    });
-                },
-                mouseout: function (e) {
-                    e.target.setStyle({
-                        fillOpacity: 0
-                    });
-                },
-                click: function (e) {
-                    const countyName = feature.properties.COUNTY_NAME.trim();
-                    const key = countyName.toLowerCase();
-                    const description = countyDescriptions[key] || "No description available for this county.";
-
-                    document.getElementById("county-title").innerText = countyName + " County";
-                    document.getElementById("county-description").innerHTML = description;
-                    document.getElementById("sidebar").classList.add("open");
+        .then(res => res.text())
+        .then(csv => {
+            const parsed = Papa.parse(csv, { header: true }).data;
+            parsed.forEach(row => {
+                if (row.county && row.description) {
+                    countyDescriptions[row.county.trim().toLowerCase()] = row.description.trim();
                 }
             });
-        }
-    }).addTo(map);
-
-    // 🧼 Add invisible non-interactive unselected counties to prevent ghost interactivity
-    L.geoJSON(unselected, {
-        style: {
-            fillOpacity: 0,
-            opacity: 0
-        },
-        interactive: false  // Ensure these counties are non-interactive
-    }).addTo(map);
-
-    map.fitBounds(countyLayer.getBounds());
-
-    // Label code for county boundaries
-    selected.forEach(feature => {
-        const bounds = L.geoJSON(feature).getBounds();
-        const center = bounds.getCenter();
-        const label = L.divIcon({
-            className: 'county-label',
-            html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
         });
-        L.marker(center, { icon: label, interactive: false }).addTo(map);
-    });
 
-    // Mask everything outside selected counties (Ensure hover effect is only for counties)
-    const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
+    fetch("assets/County_Boundaries.geojson")
+        .then(res => res.json())
+        .then(data => {
+            const selected = data.features.filter(f => regionData.counties.includes(f.properties.COUNTY_NAME));
+            const unselected = data.features.filter(f => !regionData.counties.includes(f.properties.COUNTY_NAME));
 
-    const holes = selected.flatMap(feature => {
-        if (feature.geometry.type === "Polygon") {
-            return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
-        } else if (feature.geometry.type === "MultiPolygon") {
-            return feature.geometry.coordinates.map(polygon =>
-                polygon[0].map(c => [c[1], c[0]]))
-        } else {
-            return [];
-        }
-    });
+            const countyLayer = L.geoJSON(selected, {
+                style: {
+                    color: "#000",
+                    weight: 1.5,
+                    fillOpacity: 0,
+                    dashArray: "4"
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        mouseover: e => e.target.setStyle({ fillOpacity: 0.1 }),
+                        mouseout: e => e.target.setStyle({ fillOpacity: 0 }),
+                        click: e => {
+                            const countyName = feature.properties.COUNTY_NAME.trim();
+                            const key = countyName.toLowerCase();
+                            const description = countyDescriptions[key] || "No description available for this county.";
+                            openSidebar(countyName + " County", description);
+                        }
+                    });
+                }
+            }).addTo(map);
 
-    const mask = L.polygon(
-        [outer, ...holes],
-        {
-            fillColor: "#000",
-            fillOpacity: 0.4,
-            stroke: false,
-            interactive: false  // ✅ Disable all mouse interaction
-        }
-    ).addTo(map);
+            L.geoJSON(unselected, {
+                style: { fillOpacity: 0, opacity: 0 },
+                interactive: false
+            }).addTo(map);
 
-    // Add Wisconsin State Boundary
-    fetch("assets/WI_Boundary.geojson")
-    .then(res => res.json())
-    .then(wiData => {
-        L.geoJSON(wiData, {
-            style: {
-                color: "#333",     // Dark gray border
-                weight: 2.5,
-                fillOpacity: 0
-            },
-            interactive: false  // Disable all interactions, including hover
-        }).addTo(map);
-        console.log("✅ Wisconsin boundary added.");
-    })
-    .catch(err => console.error("❌ Error loading Wisconsin boundary:", err));
+            const bounds = countyLayer.getBounds();
+            map.fitBounds(bounds, { padding: [20, 20] });
 
-})
-.catch(err => console.error("❌ Error loading county boundaries:", err));
+            if (regionKey === "lake-superior") {
+                const center = bounds.getCenter();
+                map.setView(center, 8);
+            }
 
+            selected.forEach(feature => {
+                const center = L.geoJSON(feature).getBounds().getCenter();
+                const label = L.divIcon({
+                    className: 'county-label',
+                    html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
+                });
+                L.marker(center, { icon: label, interactive: false }).addTo(map);
+            });
 
+            const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
+            const holes = selected.flatMap(feature => feature.geometry.type === "Polygon"
+                ? [feature.geometry.coordinates[0].map(c => [c[1], c[0]])]
+                : feature.geometry.coordinates.map(polygon => polygon[0].map(c => [c[1], c[0]])));
+
+            L.polygon([outer, ...holes], {
+                fillColor: "#000",
+                fillOpacity: 0.4,
+                stroke: false,
+                interactive: false
+            }).addTo(map);
+
+            fetch("assets/WI_Boundary.geojson")
+                .then(res => res.json())
+                .then(wiData => {
+                    L.geoJSON(wiData, {
+                        style: { color: "#333", weight: 2.5, fillOpacity: 0 },
+                        interactive: false
+                    }).addTo(map);
+                });
+        });
 
     const dataPath = `assets/${regionData.file}`;
-    console.log("📂 Fetching data from:", dataPath);
-
     fetch(dataPath)
-        .then((res) => {
-            if (!res.ok) throw new Error(`Failed to load CSV: ${res.statusText}`);
-            return res.text();
-        })
-        .then((csv) => {
+        .then(res => res.text())
+        .then(csv => {
             const parsedData = Papa.parse(csv, { header: true }).data;
-            console.log(`✅ Loaded ${parsedData.length} rows from CSV.`);
-
-            let addedSites = 0;
-
             parsedData.forEach(site => {
                 const lat = parseFloat(site.lat);
                 const lon = parseFloat(site.lon);
-
-                if (isNaN(lat) || isNaN(lon)) {
-                    console.warn(`⚠️ Skipped invalid coordinates for site: ${site.Name || site.name}`);
-                    return;
-                }
-
-                if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-                    console.warn(`⚠️ Skipped out-of-range coordinates for site: ${site.Name || site.name}`);
-                    return;
-                }
-
-                const name = site.Name || site.name || "";
-                const numberMatch = name.match(/^(\d+)/);
+                if (isNaN(lat) || isNaN(lon)) return;
+          
+                const rawName = site.Name || site.name || "";
+                const numberMatch = rawName.match(/^(\d+)/);
                 const siteNumber = numberMatch ? numberMatch[1] : "?";
-
+                const cleanName = rawName.replace(/^\s*\d+\s*[\.\-\s]?\s*/, ""); // Removes leading number and punctuation
+          
                 const customIcon = L.divIcon({
-                    className: "custom-number-icon",
-                    html: `
-                        <div class="custom-number-marker">
-                            ${siteNumber}
-                        </div>
-                    `,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14],
-                    popupAnchor: [0, -14]
+                  className: "custom-number-icon",
+                  html: `<div class="custom-number-marker">${siteNumber}</div>`,
+                  iconSize: [28, 28],
+                  iconAnchor: [14, 14]
                 });
 
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
-                marker.bindPopup(`
-                    <b>${name}</b><br>
-                    ${site.description || ""}<br><br>
-                    <a href="tour.html?site_id=${encodeURIComponent(name)}">View Site</a>
-                `);
-
-                addedSites++;
+                marker.on("click", () => {
+                    const description = `
+                        ${site.description || ""}<br>
+                        <b>Signature Species:</b> ${site.signature_species || "N/A"}<br>
+                        <b>Rare Species:</b> ${site.rare_species || "N/A"}<br>
+                        <b>Seasonality:</b> ${site.seasonality || "N/A"}<br>
+                        <b>Parking:</b> ${site.parking || "N/A"}<br>
+                        <b>Fee:</b> ${site.fee || "N/A"}<br>
+                        <b>Food/Lodging:</b> ${site.food_lodging || "N/A"}<br>
+                        <b>Gazetteer:</b> ${site.gazetteer || "N/A"}<br>
+                        <b>Phone:</b> ${site.phone || "N/A"}<br>
+                        <b>Website:</b> ${site.web ? `<a href="${site.web}" target="_blank">${site.web}</a>` : "N/A"}
+                    `;
+                    openSidebar(cleanName, description);
+                });
             });
-
-            if (addedSites === 0) {
-                console.warn("⚠️ No valid coordinates found in this file.");
-            } else {
-                console.log(`✅ Added ${addedSites} markers to the map.`);
-            }
-        })
-        .catch((error) => console.error("❌ Error loading site data:", error));
+        });
 });
 
 function openSidebar(title, description) {
