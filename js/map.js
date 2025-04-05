@@ -181,21 +181,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
-                marker.on("click", () => {
-                    const description = `
-                        ${site.description || ""}<br>
-                        <b>Signature Species:</b> ${site.signature_species || "N/A"}<br>
-                        <b>Rare Species:</b> ${site.rare_species || "N/A"}<br>
-                        <b>Seasonality:</b> ${site.seasonality || "N/A"}<br>
-                        <b>Parking:</b> ${site.parking || "N/A"}<br>
-                        <b>Fee:</b> ${site.fee || "N/A"}<br>
-                        <b>Food/Lodging:</b> ${site.food_lodging || "N/A"}<br>
-                        <b>Gazetteer:</b> ${site.gazetteer || "N/A"}<br>
-                        <b>Phone:</b> ${site.phone || "N/A"}<br>
-                        <b>Website:</b> ${site.web ? `<a href="${site.web}" target="_blank">${site.web}</a>` : "N/A"}
-                    `;
-                    openSidebar(cleanName, description);
-                });
+marker.on("click", () => {
+    const description = site.site_desc || "No description available.";
+    openSidebar(cleanName, description);
+});
+
             });
         });
 });

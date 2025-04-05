@@ -46,19 +46,25 @@
                     { name: "Mississippi/Chippewa Rivers Region", img: "mississippi.png", param: "mississippi" },
                     { name: "Lake Michigan", img: "lakemichigan.png", param: "lake-michigan" },
                     { name: "Southern Savanna", img: "southernsavanna.png", param: "southern-savanna" },                    
-                    { name: "Central Sand Prairie", img: "centralsand.png", param: "central-sands" }
+                    { name: "Central Sand Prairie", img: "centralsand.png", param: "central-sands" },
+                    { name: "Table of Contents", img: "logo.png", url: "list.html" }
                 ];
-
+            
                 document.write('<div class="row g-4">');
                 regions.forEach(region => {
+                    const href = region.url ? region.url : `map.html?region=${region.param}`;
                     document.write(`
                         <div class="col-md-4">
-                            <a href="map.html?region=${region.param}" class="card-link">
+                            <a href="${href}" class="card-link">
                                 <div class="card h-100">
-                                    <img src="img/${region.img}" class="card-img-top" alt="${region.name} Region">
+                                    <img src="img/${region.img}" class="card-img-top" alt="${region.name}">
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">${region.name} Region</h5>
-                                        <p class="card-text">Explore birding sites in the ${region.name} region.</p>
+                                        <h5 class="card-title">${region.name}</h5>
+                                        <p class="card-text">${
+                                            region.param 
+                                                ? `Explore birding sites in the ${region.name} region.` 
+                                                : "Browse all birding sites in one convenient list."
+                                        }</p>
                                     </div>
                                 </div>
                             </a>
