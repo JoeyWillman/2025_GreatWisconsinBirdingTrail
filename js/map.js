@@ -149,49 +149,45 @@ document.addEventListener("DOMContentLoaded", function () {
             fillOpacity: 0,
             opacity: 0
         },
-        interactive: false
+        interactive: false  // Ensure these counties are non-interactive
     }).addTo(map);
 
-        map.fitBounds(countyLayer.getBounds());
+    map.fitBounds(countyLayer.getBounds());
 
-        // Label code for county boundaries
-        selected.forEach(feature => {
-            const bounds = L.geoJSON(feature).getBounds();
-            const center = bounds.getCenter();
-            const label = L.divIcon({
-                className: 'county-label',
-                html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
-            });
-            L.marker(center, { icon: label, interactive: false }).addTo(map);
+    // Label code for county boundaries
+    selected.forEach(feature => {
+        const bounds = L.geoJSON(feature).getBounds();
+        const center = bounds.getCenter();
+        const label = L.divIcon({
+            className: 'county-label',
+            html: `<span style="color: black; font-weight: bold; text-shadow: 1px 1px 0 white, -1px 1px 0 white, 1px -1px 0 white, -1px -1px 0 white;">${feature.properties.COUNTY_NAME}</span>`
         });
+        L.marker(center, { icon: label, interactive: false }).addTo(map);
+    });
 
-        // Mask everything outside selected counties (Ensure hover effect is only for counties)
-        const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
+    // Mask everything outside selected counties (Ensure hover effect is only for counties)
+    const outer = [[-90, -360], [-90, 360], [90, 360], [90, -360]];
 
-        const holes = selected.flatMap(feature => {
-            if (feature.geometry.type === "Polygon") {
-                return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
-            } else if (feature.geometry.type === "MultiPolygon") {
-                return feature.geometry.coordinates.map(polygon =>
-                    polygon[0].map(c => [c[1], c[0]]))
-            } else {
-                return [];
-            }
-        });
+    const holes = selected.flatMap(feature => {
+        if (feature.geometry.type === "Polygon") {
+            return [feature.geometry.coordinates[0].map(c => [c[1], c[0]])];
+        } else if (feature.geometry.type === "MultiPolygon") {
+            return feature.geometry.coordinates.map(polygon =>
+                polygon[0].map(c => [c[1], c[0]]))
+        } else {
+            return [];
+        }
+    });
 
-        const mask = L.polygon(
-            [outer, ...holes],
-            {
-                fillColor: "#000",
-                fillOpacity: 0.4,
-                stroke: false,
-                interactive: false  // ✅ Disable all mouse interaction
-            }
-        ).addTo(map);
-
-
-    })
-    .catch(err => console.error("❌ Error loading county boundaries:", err));
+    const mask = L.polygon(
+        [outer, ...holes],
+        {
+            fillColor: "#000",
+            fillOpacity: 0.4,
+            stroke: false,
+            interactive: false  // ✅ Disable all mouse interaction
+        }
+    ).addTo(map);
 
     // Add Wisconsin State Boundary
     fetch("assets/WI_Boundary.geojson")
@@ -202,11 +198,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 color: "#333",     // Dark gray border
                 weight: 2.5,
                 fillOpacity: 0
-            }
+            },
+            interactive: false  // Disable all interactions, including hover
         }).addTo(map);
         console.log("✅ Wisconsin boundary added.");
     })
     .catch(err => console.error("❌ Error loading Wisconsin boundary:", err));
+
+})
+.catch(err => console.error("❌ Error loading county boundaries:", err));
+
+
 
     const dataPath = `assets/${regionData.file}`;
     console.log("📂 Fetching data from:", dataPath);
