@@ -7,28 +7,30 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
   font-family: 'Poppins', sans-serif;
   background-color: #f8f9fa;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
+  text-align: left;
+  display: block;
 }
 
 h1, h2, h3, h4 {
   color: #1B6CA7;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none; /* No forced UPPERCASE */
+  text-align: left;     /* Left align headers */
+  margin-bottom: 1rem;
 }
 
 p {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 400;
+  text-align: left;
 }
 
 .list-group-item {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: normal;
 }
 
 /* --------------------------- */
@@ -306,3 +308,54 @@ p {
   padding: 10px;
   white-space: pre-line;
 }
+
+/* --------------------------- */
+/*      TABLE OF CONTENTS      */
+/* --------------------------- */
+
+.county-block {
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-left: 6px solid #1A4D7A;
+  border-radius: 4px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.county-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1A4D7A;
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+
+.county-description {
+  font-size: 1rem;
+  color: #333;
+  white-space: normal;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.site-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  margin: 1rem auto;
+  background-color: #f0f4f8;
+  color: #1A4D7A;
+  text-decoration: none;
+  border-left: 4px solid #1A4D7A;
+  border-radius: 4px;
+  max-width: 680px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.site-link:hover {
+  background-color: #e0e8f0;
+  text-decoration: underline;
+}
+

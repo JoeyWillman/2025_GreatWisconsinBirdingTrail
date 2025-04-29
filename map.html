@@ -73,12 +73,33 @@
     </div>
 
     <div id="sidebar" class="sidebar">
-        <button onclick="closeSidebar()">×</button>
-        <h2 id="county-title">Select a County</h2>
-        <div id="county-description">
-          Click a county on the map to view its birding guide description.
+        <button onclick="closeSidebar()" style="font-size: 24px; background: none; border: none; float: right; cursor: pointer;">×</button>
+        <h2 id="county-title" style="margin-top: 10px;">Select a County</h2>
+        <div id="county-description" style="margin-top: 10px;">
+            Click a county on the map to view its birding guide description.
         </div>
-      </div>
+        
+        <!-- Google Maps Directions Button -->
+        <button id="directions-button" style="
+            margin-top: 20px;
+            display: none;
+            padding: 10px;
+            background-color: #1A4D7A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        ">
+            Get Directions
+        </button>
+    </div>
+    
       
       
 

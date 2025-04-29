@@ -1,5 +1,8 @@
 console.log("✅ map.js is running");
 
+let currentLat = null;
+let currentLon = null;
+
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ DOM Loaded");
 
@@ -167,34 +170,56 @@ document.addEventListener("DOMContentLoaded", function () {
                 const lat = parseFloat(site.lat);
                 const lon = parseFloat(site.lon);
                 if (isNaN(lat) || isNaN(lon)) return;
-          
+
                 const rawName = site.Name || site.name || "";
                 const numberMatch = rawName.match(/^(\d+)/);
                 const siteNumber = numberMatch ? numberMatch[1] : "?";
-                const cleanName = rawName.replace(/^\s*\d+\s*[\.\-\s]?\s*/, ""); // Removes leading number and punctuation
-          
+                const cleanName = rawName.replace(/^\s*\d+\s*[\.\-\s]?\s*/, "");
+
                 const customIcon = L.divIcon({
-                  className: "custom-number-icon",
-                  html: `<div class="custom-number-marker">${siteNumber}</div>`,
-                  iconSize: [28, 28],
-                  iconAnchor: [14, 14]
+                    className: "custom-number-icon",
+                    html: `<div class="custom-number-marker">${siteNumber}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
                 });
 
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
-marker.on("click", () => {
-    const description = site.site_desc || "No description available.";
-    openSidebar(cleanName, description);
-});
-
+                marker.on("click", () => {
+                    const description = site.site_desc || "No description available.";
+                    openSidebar(cleanName, description, lat, lon);
+                });
             });
         });
+
+    // Setup directions button
+    const directionsButton = document.getElementById("directions-button");
+    if (directionsButton) {
+        directionsButton.addEventListener("click", () => {
+            if (currentLat !== null && currentLon !== null) {
+                const url = `https://www.google.com/maps/dir/?api=1&destination=${currentLat},${currentLon}`;
+                window.open(url, '_blank');
+            }
+        });
+    }
 });
 
-function openSidebar(title, description) {
+function openSidebar(title, description, lat = null, lon = null) {
     const sidebar = document.getElementById("sidebar");
     document.getElementById("county-title").innerText = title;
     document.getElementById("county-description").innerHTML = description;
     sidebar.classList.add("open");
+
+    currentLat = lat;
+    currentLon = lon;
+
+    const directionsButton = document.getElementById("directions-button");
+    if (directionsButton) {
+        if (lat !== null && lon !== null) {
+            directionsButton.style.display = "block";
+        } else {
+            directionsButton.style.display = "none";
+        }
+    }
 }
 
 function closeSidebar() {
