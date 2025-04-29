@@ -220,18 +220,17 @@ p {
 
 .footer {
   background-color: #1A4D7A;
-  padding: 20px;
+  padding: 20px 0;
   color: white;
-  text-align: center;
+  text-align: center; /* <-- Recenter Footer Text */
 }
 
-.footer img {
-  margin-top: 10px;
+.footer p, .footer img {
+  text-align: center;  /* <-- Make sure p and img inside footer are also centered */
+  margin: auto;        /* <-- Center the image horizontally */
+  display: block;      /* <-- Make sure image behaves like a block element for margin auto to work */
 }
 
-.footer p {
-  margin: 0;
-}
 
 .county-label {
   font-size: 12px;

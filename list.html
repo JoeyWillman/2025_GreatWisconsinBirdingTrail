@@ -9,176 +9,225 @@
   <link href="https://fonts.googleapis.com/css2?family=Radio+Canada&display=swap" rel="stylesheet"/>
 
   <style>
-  
-  
-  .region-content, .county-description {
-  transition: all 0.3s ease;
-}
-  
-.directions-button {
-  margin-left: 1.5rem;
-  color: #1A4D7A;
-  font-weight: 500;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-.directions-button:hover {
-  color: #0e3959;
-}
+  /* ------------------- Global Reset ------------------- */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Radio Canada", sans-serif;
+    background-color: #f9f9f9;
+    color: #222;
+  }
 
-  body {
-      font-family: "Radio Canada", sans-serif;
-      background-color: #f9f9f9;
-      color: #222;
-    }
+  main {
+    flex: 1;
+  }
 
-    h1, h2, h3 {
-      color: #1A4D7A;
-      font-weight: bold;
-    }
+  /* ------------------- Navbar ------------------- */
+  .navbar {
+    background-color: #1A4D7A;
+  }
 
-    .navbar {
-      background-color: #1A4D7A;
-    }
+  .navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+  }
 
-    .navbar-brand img {
-      height: 40px;
-      margin-right: 10px;
-    }
+  .navbar-brand img {
+    height: 50px;
+    margin-right: 10px;
+  }
 
-    .navbar-nav .nav-link {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
+  .navbar-nav .nav-link {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: white;
+  }
 
-    .region-card {
-      margin-bottom: 2rem;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .nav-link.active {
+    color: #ffdd57;
+  }
 
+  /* ------------------- Regions & Sites ------------------- */
+  h1, h2, h3 {
+    color: #1A4D7A;
+    font-weight: bold;
+  }
+
+  .region-card {
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .region-header {
+    padding: 1rem 1.5rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    background-color: #1A4D7A;
+    outline: none;
+  }
+
+  .region-header:focus,
+  .region-header:hover {
+    outline: 3px solid #fff;
+    outline-offset: -3px;
+  }
+
+  .region-lake-michigan { background-color: #5D737E; }
+  .region-northwoods     { background-color: #2E7D32; }
+  .region-mississippi    { background-color: #A67C00; }
+  .region-savanna        { background-color: #8D6E63; }
+  .region-central        { background-color: #BF360C; }
+
+  .region-content {
+    padding: 1.5rem;
+  }
+
+  .county-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #222;
+  }
+
+  .county-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .site-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    background-color: #f0f4f8;
+    border-left: 4px solid #4A6C82;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #1A4D7A;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+
+  .site-link:hover,
+  .site-link:focus {
+    background-color: #e0e8f0;
+    text-decoration: underline;
+    outline: 2px dashed #4A6C82;
+    outline-offset: 2px;
+  }
+
+  .directions-button {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    display: inline-block;
+    color: #1A4D7A;
+    font-weight: 500;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+
+  .directions-button:hover {
+    color: #0e3959;
+  }
+
+  /* ------------------- Footer ------------------- */
+  .footer {
+    background-color: #1A4D7A;
+    padding: 20px 0;
+    color: white;
+    text-align: center;
+    margin-top: auto;
+    border-top: 2px solid #ffffff30; /* thin white translucent line */
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer p {
+    margin: 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+  }
+
+  .footer img {
+    margin-top: 10px;
+    height: 60px;
+    object-fit: contain;
+    opacity: 0.9;
+    transition: opacity 0.3s;
+  }
+
+  .footer img:hover {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
     .region-header {
-      padding: 1rem 1.5rem;
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .region-header:focus,
-    .region-header:hover {
-      outline: 3px solid #fff;
-      outline-offset: -3px;
-    }
-
-    .region-lake-michigan { background-color: #5D737E; }
-    .region-northwoods     { background-color: #2E7D32; }
-    .region-mississippi    { background-color: #A67C00; }
-    .region-savanna        { background-color: #8D6E63; }
-    .region-central        { background-color: #BF360C; }
-
-    .region-content {
-      padding: 1.5rem;
-    }
-
-    .county-name {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: #222;
-    }
-
-    .county-description {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .site-link {
-      display: block;
+      font-size: 1.1rem;
       padding: 0.75rem 1rem;
-      margin: 0.5rem 0;
-      background-color: #f0f4f8;
-      border-left: 4px solid #4A6C82;
-      border-radius: 4px;
-      text-decoration: none;
-      color: #1A4D7A;
-      font-weight: 500;
-      transition: background-color 0.2s ease;
     }
-
-    .site-link:hover,
-    .site-link:focus {
-      background-color: #e0e8f0;
-      text-decoration: underline;
-      outline: 2px dashed #4A6C82;
-      outline-offset: 2px;
-    }
-
-    .footer {
-      background-color: #1A4D7A;
-      padding: 20px 0;
-      color: white;
-      text-align: center;
-    }
-
-    .footer img {
-      margin-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .region-header {
-        font-size: 1.1rem;
-        padding: 0.75rem 1rem;
-      }
-    }
+  }
   </style>
 </head>
 
 <body>
   <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1A4D7A;">
+  <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.html">
-            <img src="img/logo.png" alt="Logo" style="height: 40px;">
-            The Great Wisconsin Birding and Nature Trail
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="list.html">Table of Contents</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="about.html">About</a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="index.html">
+        <img src="img/logo.png" alt="Logo">
+        The Great Wisconsin Birding and Nature Trail
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="list.html">Table of Contents</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
+        </ul>
+      </div>
     </div>
-</nav>
+  </nav>
 
   <!-- Main Content -->
-  <div class="container my-5">
+  <main class="container my-5">
     <h1 class="text-center mb-5">Table of Contents</h1>
     <div id="region-list">
-      <!-- Content populated by list.js -->
+      <!-- Populated by list.js -->
     </div>
-  </div>
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="container">
-      <p class="mb-2">&copy; 2025 The Great Wisconsin Birding and Nature Trail. All rights reserved.</p>
-      <img src="img/logo.png" alt="Wisconsin Birding Trail Logo" height="75" />
+    <div class="container footer-content">
+      <p>&copy; 2025 The Great Wisconsin Birding and Nature Trail</p>
+      <img src="img/logo.png" alt="Wisconsin Birding Trail Logo" />
     </div>
   </footer>
 

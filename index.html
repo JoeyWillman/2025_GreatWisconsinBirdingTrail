@@ -1,109 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Great Wisconsin Birding and Nature Trail</title>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Great Wisconsin Birding and Nature Trail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Radio+Canada&display=swap" rel="stylesheet"/>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Reset and Flex Layout */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: "Radio Canada", sans-serif;
+      background-color: #f9f9f9;
+      color: #222;
+    }
 
-    <!-- Leaflet and Custom Styles -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-    <link rel="stylesheet" href="css/style.css">
+    main {
+      flex: 1;
+    }
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Coiny&family=Radio+Canada&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: "Radio Canada", sans-serif;
-        }
-    </style>
+    /* Navbar */
+    .navbar {
+      background-color: #1A4D7A;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-brand img {
+      height: 50px;
+      margin-right: 10px;
+    }
+
+    .navbar-nav .nav-link {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: white;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: #ffdd57;
+    }
+
+    /* Card Links */
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.3s ease;
+    }
+
+    .card-link:hover .card {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-img-top {
+  transition: transform 0.3s ease;
+  width: 100%;
+  height: auto;
+}
+
+.card:hover .card-img-top {
+  transform: scale(1.1);
+}
+    .card-body {
+      text-align: center;
+    }
+
+    .card-title {
+      color: #1A4D7A;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+
+    .card-text {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #1A4D7A;
+      padding: 20px 0;
+      color: white;
+      text-align: center;
+      margin-top: auto;
+      border-top: 2px solid #ffffff30;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .footer p {
+      margin: 0;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .footer img {
+      margin-top: 10px;
+      height: 60px;
+      object-fit: contain;
+      opacity: 0.9;
+      transition: opacity 0.3s;
+    }
+
+    .footer img:hover {
+      opacity: 1;
+    }
+  </style>
 </head>
+
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1A4D7A;">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <img src="img/logo.png" alt="Logo" style="height: 40px;">
-                The Great Wisconsin Birding and Nature Trail
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="list.html">Table of Contents</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">About</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container my-5">
-        <div class="row g-4">
-            <script>
-                const regions = [
-                    { name: "Lake Superior Northwoods Region", img: "superior.png", param: "lake-superior" },
-                    { name: "Mississippi/Chippewa Rivers Region", img: "mississippi.png", param: "mississippi" },
-                    { name: "Lake Michigan", img: "lakemichigan.png", param: "lake-michigan" },
-                    { name: "Southern Savanna", img: "southernsavanna.png", param: "southern-savanna" },                    
-                    { name: "Central Sand Prairie", img: "centralsand.png", param: "central-sands" },
-                    { name: "Table of Contents", img: "thumbnail.png", url: "list.html" }
-                ];
-            
-                document.write('<div class="row g-4">');
-                regions.forEach(region => {
-                    const href = region.url ? region.url : `map.html?region=${region.param}`;
-                    document.write(`
-                        <div class="col-md-4">
-                            <a href="${href}" class="card-link">
-                                <div class="card h-100">
-                                    <img src="img/${region.img}" class="card-img-top" alt="${region.name}">
-                                    <div class="card-body text-center">
-                                        <h5 class="card-title">${region.name}</h5>
-                                        <p class="card-text">${
-                                            region.param 
-                                                ? `Explore birding sites in the ${region.name} region.` 
-                                                : "Browse all birding sites in one convenient list."
-                                        }</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    `);
-                });
-                document.write('</div>');
-            </script>
-        </div>
-    </div>
-
-    <footer class="footer" style="background-color: #1A4D7A; padding: 20px; color: white; text-align: center;">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <p style="margin: 0;">Copyright © 2025 The Great Wisconsin Birding and Nature Trail. All rights reserved.</p>
-            <img src="img/logo.png" alt="logo" height="75px" style="margin-top: 10px;">
-          </div>
-        </div>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">
+        <img src="img/logo.png" alt="Logo">
+        The Great Wisconsin Birding and Nature Trail
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="index.html">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="list.html">Table of Contents</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
+        </ul>
       </div>
-    </footer>
+    </div>
+  </nav>
 
-    <!-- Bootstrap Bundle JS (for navbar collapse toggle) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Main Content -->
+  <main class="container my-5">
+    <div class="row g-4">
+      <!-- Cards for Regions -->
+      <div class="col-md-4">
+        <a href="map.html?region=lake-superior" class="card-link">
+          <div class="card h-100">
+            <img src="img/superior.png" class="card-img-top" alt="Lake Superior Northwoods Region">
+            <div class="card-body">
+              <h5 class="card-title">Lake Superior Northwoods</h5>
+              <p class="card-text">Explore birding sites in the Lake Superior region.</p>
+            </div>
+          </div>
+        </a>
+      </div>
 
+      <div class="col-md-4">
+        <a href="map.html?region=mississippi" class="card-link">
+          <div class="card h-100">
+            <img src="img/mississippi.png" class="card-img-top" alt="Mississippi/Chippewa Rivers Region">
+            <div class="card-body">
+              <h5 class="card-title">Mississippi/Chippewa Rivers</h5>
+              <p class="card-text">Explore birding sites along the mighty rivers.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="map.html?region=lake-michigan" class="card-link">
+          <div class="card h-100">
+            <img src="img/lakemichigan.png" class="card-img-top" alt="Lake Michigan Region">
+            <div class="card-body">
+              <h5 class="card-title">Lake Michigan</h5>
+              <p class="card-text">Discover birding hotspots along the lake shore.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="map.html?region=southern-savanna" class="card-link">
+          <div class="card h-100">
+            <img src="img/southernsavanna.png" class="card-img-top" alt="Southern Savanna Region">
+            <div class="card-body">
+              <h5 class="card-title">Southern Savanna</h5>
+              <p class="card-text">Explore prairies and oak savannas teeming with life.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="map.html?region=central-sands" class="card-link">
+          <div class="card h-100">
+            <img src="img/centralsand.png" class="card-img-top" alt="Central Sand Prairie">
+            <div class="card-body">
+              <h5 class="card-title">Central Sand Prairie</h5>
+              <p class="card-text">Visit the sandy plains and diverse wetlands of central Wisconsin.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-4">
+        <a href="list.html" class="card-link">
+          <div class="card h-100">
+            <img src="img/thumbnail.png" class="card-img-top" alt="Table of Contents">
+            <div class="card-body">
+              <h5 class="card-title">Table of Contents</h5>
+              <p class="card-text">Browse all sites across Wisconsin by county and region.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p>&copy; 2025 The Great Wisconsin Birding and Nature Trail</p>
+      <img src="img/logo.png" alt="Wisconsin Birding Trail Logo">
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
