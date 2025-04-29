@@ -25,11 +25,11 @@
             padding: 0;
         }
         #map-container {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
+  width: 100%;
+  height: calc(100vh - 100px); /* subtract navbar height */
+  margin: 0;
+  padding: 0;
+}
         #map {
             width: 100%;
             height: 100%;
@@ -43,16 +43,6 @@
     padding: 0;
     height: 100%;
     overflow: hidden; /* prevents scrollbars from breaking layout */
-}
-
-#map-container {
-    width: 100%;
-    height: 100%;
-}
-
-#map {
-    width: 100%;
-    height: 100%;
 }
 
     </style>
