@@ -116,26 +116,53 @@
             Click a county on the map to view its birding guide description.
         </div>
         
-        <!-- Google Maps Directions Button -->
-        <button id="directions-button" style="
-            margin-top: 20px;
-            display: none;
-            padding: 10px;
-            background-color: #1A4D7A;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            width: 100%;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-        ">
-            Get Directions
-        </button>
-    </div>
+        <!-- Directions Button -->
+<div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+  <button id="directions-button" style="
+      width: 90%;
+      padding: 10px;
+      background-color: #1A4D7A;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+  ">
+      Get Directions
+  </button>
+</div>
+
+<!-- Next/Prev Navigation Buttons (only show for sites) -->
+<div id="site-nav" style="width: 100%; display: none; justify-content: center; margin-top: 10px;">
+  <div style="display: flex; gap: 10px;">
+      <button id="prev-button" style="
+          padding: 10px 20px;
+          background-color: #1A4D7A;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-weight: bold;
+          cursor: pointer;
+      ">
+          ← Prev
+      </button>
+      <button id="next-button" style="
+          padding: 10px 20px;
+          background-color: #1A4D7A;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-weight: bold;
+          cursor: pointer;
+      ">
+          Next →
+      </button>
+  </div>
+</div>
+
+
+
+
     
       
       

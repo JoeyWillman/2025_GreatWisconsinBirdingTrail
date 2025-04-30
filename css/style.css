@@ -298,7 +298,7 @@ p {
 
 /* Hover effect for counties */
 .leaflet-interactive:hover {
-  fill-opacity: 0.2 !important;
+  fill-opacity: 0.0 !important;
   cursor: pointer;
 }
 
@@ -358,3 +358,11 @@ p {
   text-decoration: underline;
 }
 
+.leaflet-interactive.hover-outline {
+  stroke: #1B2F4E !important;       /* Deep navy blue */
+  stroke-width: 2.5px !important;   /* Slightly thicker */
+  stroke-dasharray: none !important;
+  fill-opacity: 0 !important;
+  filter: drop-shadow(0 0 1.5px #1B6CA7); /* Subtle soft glow */
+  cursor: pointer;
+}
