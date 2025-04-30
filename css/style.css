@@ -366,3 +366,8 @@ p {
   filter: drop-shadow(0 0 1.5px #1B6CA7); /* Subtle soft glow */
   cursor: pointer;
 }
+@media (max-width: 600px) {
+  .sidebar {
+    width: 90vw;
+  }
+}

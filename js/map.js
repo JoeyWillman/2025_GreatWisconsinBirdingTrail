@@ -43,7 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const baseLayer = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors',
         subdomains: "abcd",
-    });
+        detectRetina: true  
+      });
+      
     const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri'
     });
